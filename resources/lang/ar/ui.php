@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'app_name' => 'Incubator Lab',
+    'switch_ar' => 'ع',
+    'switch_en' => 'EN',
+    'notifications' => 'الإشعارات',
+    'logout' => 'خروج',
+    'admin_dashboard' => 'لوحة المدير العام',
+    'mentor_dashboard' => 'لوحة الموجه',
+    'entrepreneur_dashboard' => 'لوحة رائد الأعمال',
+    'gateway_title' => 'بوابة الحاضنة',
+    'gateway_subtitle' => 'اختر الدور وادخل مباشرة',
+    'role_admin' => 'مدير النظام',
+    'role_mentor' => 'موجه الأعمال',
+    'role_entrepreneur' => 'رائد الأعمال',
+    'role_enterpreneur' => 'رائد الأعمال',
+    'role_admin_ar' => 'مدير النظام',
+    'role_admin_en' => 'System Administrator',
+    'role_mentor_ar' => 'موجه الأعمال',
+    'role_mentor_en' => 'Business Mentor',
+    'role_entrepreneur_ar' => 'رائد الأعمال',
+    'role_entrepreneur_en' => 'Entrepreneur',
+    'enter_as' => 'الدخول كـ',
+    'no_role_user' => 'لا يوجد مستخدم تجريبي لهذا الدور. قم بتشغيل التهيئة أولاً.',
+];

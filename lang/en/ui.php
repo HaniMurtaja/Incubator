@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'app_name' => 'Incubator Lab',
+    'switch_ar' => 'AR',
+    'switch_en' => 'EN',
+    'notifications' => 'Notifications',
+    'logout' => 'Logout',
+    'admin_dashboard' => 'Admin Dashboard',
+    'mentor_dashboard' => 'Mentor Dashboard',
+    'entrepreneur_dashboard' => 'Entrepreneur Dashboard',
+    'gateway_title' => 'Incubator Gateway',
+    'gateway_subtitle' => 'Choose a role and access directly',
+    'role_admin' => 'System Administrator',
+    'role_mentor' => 'Business Mentor',
+    'role_entrepreneur' => 'Entrepreneur',
+    'role_enterpreneur' => 'Entrepreneur',
+    'role_admin_ar' => 'مدير النظام',
+    'role_admin_en' => 'System Administrator',
+    'role_mentor_ar' => 'موجه الأعمال',
+    'role_mentor_en' => 'Business Mentor',
+    'role_entrepreneur_ar' => 'رائد الأعمال',
+    'role_entrepreneur_en' => 'Entrepreneur',
+    'enter_as' => 'Enter as',
+    'no_role_user' => 'No demo user found for this role. Seed the database first.',
+];

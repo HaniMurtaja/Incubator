@@ -1,0 +1,77 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\QuickAccessController;
+use App\Http\Controllers\Admin\ProjectReviewController;
+use App\Http\Controllers\Admin\AssignmentLogController;
+use App\Http\Controllers\Admin\MeetingRequestController;
+use App\Http\Controllers\Admin\AuditTrailController;
+use App\Http\Controllers\Admin\StageTemplateController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Entrepreneur\ProjectController as EntrepreneurProjectController;
+use App\Http\Controllers\Entrepreneur\TaskSubmissionController;
+use App\Http\Controllers\Mentor\ProjectController as MentorProjectController;
+use App\Http\Controllers\Mentor\TaskController as MentorTaskController;
+use App\Http\Controllers\Mentor\CommandCenterController;
+use App\Http\Controllers\Mentor\MentorshipCalendarController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::post('/contact-us', [LandingController::class, 'contact'])->name('contact.submit');
+Route::post('/quick-access/{role}', [QuickAccessController::class, 'loginAsRole'])->name('quick.access');
+Route::get('/locale/{locale}', function ($locale) {
+    abort_unless(in_array($locale, ['ar', 'en'], true), 404);
+    session(['locale' => $locale]);
+    return redirect()->back();
+})->name('locale.switch');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+
+    Route::prefix('admin')->name('admin.')->middleware('role:Admin')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+        Route::resource('users', UserController::class);
+        Route::resource('stages', StageTemplateController::class);
+        Route::get('projects', [ProjectReviewController::class, 'index'])->name('projects.index');
+        Route::post('projects', [ProjectReviewController::class, 'store'])->name('projects.store');
+        Route::patch('projects/{project}/review', [ProjectReviewController::class, 'update'])->name('projects.review');
+        Route::resource('assignments', AssignmentLogController::class)->only(['index', 'store', 'destroy']);
+        Route::resource('meetings', MeetingRequestController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('audit-trail', [AuditTrailController::class, 'index'])->name('audit.index');
+    });
+
+    Route::prefix('mentor')->name('mentor.')->middleware('role:Mentor')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'mentor'])->name('dashboard');
+        Route::resource('tasks', MentorTaskController::class);
+        Route::get('command-center', [CommandCenterController::class, 'index'])->name('command.index');
+        Route::patch('command-center/stages/{stage}', [CommandCenterController::class, 'updateStage'])->name('command.stages.update');
+        Route::get('calendar', [MentorshipCalendarController::class, 'index'])->name('calendar.index');
+        Route::get('calendar/events', [MentorshipCalendarController::class, 'events'])->name('calendar.events');
+        Route::post('calendar/availability', [MentorshipCalendarController::class, 'storeAvailability'])->name('calendar.availability.store');
+        Route::delete('calendar/availability/{slot}', [MentorshipCalendarController::class, 'destroyAvailability'])->name('calendar.availability.destroy');
+        Route::get('projects', [MentorProjectController::class, 'index'])->name('projects.index');
+        Route::get('projects/{project}', [MentorProjectController::class, 'show'])->name('projects.show');
+        Route::post('submissions/{submission}/evaluate', [MentorProjectController::class, 'evaluate'])->name('submissions.evaluate');
+    });
+
+    Route::prefix('entrepreneur')->name('entrepreneur.')->middleware('role:Entrepreneur')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'entrepreneur'])->name('dashboard');
+        Route::resource('projects', EntrepreneurProjectController::class);
+        Route::resource('submissions', TaskSubmissionController::class)->only(['index', 'create', 'store', 'show']);
+    });
+});
