@@ -39,6 +39,16 @@
     @stack('styles')
 </head>
 <body class="{{ $adminArabicLayout ? 'admin-ar-layout' : '' }}">
+@php
+    $unreadNotificationsCount = 0;
+    if (auth()->check()) {
+        try {
+            $unreadNotificationsCount = auth()->user()->unreadNotifications()->count();
+        } catch (\Throwable $e) {
+            $unreadNotificationsCount = 0;
+        }
+    }
+@endphp
 <div class="page">
     <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark bg-dark" style="min-height: 100vh;">
         <div class="container-fluid">
@@ -57,8 +67,8 @@
                     <a href="{{ route('locale.switch', 'en') }}" class="btn btn-outline-light btn-sm">{{ __('ui.switch_en') }}</a>
                     <a href="{{ route('notifications.index') }}" class="btn btn-outline-primary btn-sm">
                         Notifications
-                        @if(auth()->user()->unreadNotifications->count())
-                            <span class="badge bg-red ms-1">{{ auth()->user()->unreadNotifications->count() }}</span>
+                        @if($unreadNotificationsCount > 0)
+                            <span class="badge bg-red ms-1">{{ $unreadNotificationsCount }}</span>
                         @endif
                     </a>
                     <span class="badge bg-azure-lt">{{ auth()->user()->name }}</span>
