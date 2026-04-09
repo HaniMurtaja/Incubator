@@ -8,7 +8,9 @@ use App\Models\Project;
 use App\Models\User;
 use App\Services\ProjectLifecycleService;
 use App\Support\Statuses\ProjectStatus;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProjectReviewController extends Controller
 {
@@ -22,28 +24,48 @@ class ProjectReviewController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['q', 'status', 'mentor_id']);
+        try {
+            $projectsQuery = Project::with(['entrepreneur', 'mentor'])->latest();
 
-        $projectsQuery = Project::with(['entrepreneur', 'mentor'])->latest();
+            if ($request->filled('q')) {
+                $term = trim((string) $request->input('q'));
+                $projectsQuery->where(function ($q) use ($term) {
+                    $q->where('title', 'like', '%'.$term.'%')
+                        ->orWhere('description', 'like', '%'.$term.'%');
+                });
+            }
 
-        if ($request->filled('q')) {
-            $term = trim($request->input('q'));
-            $projectsQuery->where(function ($q) use ($term) {
-                $q->where('title', 'like', '%'.$term.'%')
-                    ->orWhere('description', 'like', '%'.$term.'%');
-            });
+            if ($request->filled('status')) {
+                $projectsQuery->where('status', (string) $request->input('status'));
+            }
+
+            if ($request->filled('mentor_id')) {
+                $projectsQuery->where('mentor_id', (int) $request->input('mentor_id'));
+            }
+
+            $projects = $projectsQuery->paginate(10)->withQueryString();
+
+            // Avoid package scope edge-cases on some PDO/MySQL setups.
+            $mentors = User::whereHas('roles', function ($q) {
+                $q->where('name', 'Mentor');
+            })->orderBy('name')->get();
+            $entrepreneurs = User::whereHas('roles', function ($q) {
+                $q->where('name', 'Entrepreneur');
+            })->orderBy('name')->get();
+        } catch (QueryException $e) {
+            Log::error('Admin project listing query failed', [
+                'error' => $e->getMessage(),
+                'filters' => $filters,
+            ]);
+
+            $projects = Project::with(['entrepreneur', 'mentor'])->latest()->paginate(10)->withQueryString();
+            $mentors = User::whereHas('roles', function ($q) {
+                $q->where('name', 'Mentor');
+            })->orderBy('name')->get();
+            $entrepreneurs = User::whereHas('roles', function ($q) {
+                $q->where('name', 'Entrepreneur');
+            })->orderBy('name')->get();
         }
-
-        if ($request->filled('status')) {
-            $projectsQuery->where('status', $request->input('status'));
-        }
-
-        if ($request->filled('mentor_id')) {
-            $projectsQuery->where('mentor_id', $request->input('mentor_id'));
-        }
-
-        $projects = $projectsQuery->paginate(10)->withQueryString();
-        $mentors = User::role('Mentor')->orderBy('name')->get();
-        $entrepreneurs = User::role('Entrepreneur')->orderBy('name')->get();
 
         return view('admin.projects.index', compact('projects', 'mentors', 'entrepreneurs', 'filters'));
     }
