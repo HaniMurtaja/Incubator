@@ -19,8 +19,12 @@ class MeetingRequestController extends Controller
     {
         $requests = MeetingRequest::with(['project', 'mentor', 'entrepreneur'])->latest('requested_for')->paginate(15);
         $projects = Project::orderBy('title')->get();
-        $mentors = User::role('Mentor')->orderBy('name')->get();
-        $entrepreneurs = User::role('Entrepreneur')->orderBy('name')->get();
+        $mentors = User::whereHas('roles', function ($q) {
+            $q->where('name', 'Mentor');
+        })->orderBy('name')->get();
+        $entrepreneurs = User::whereHas('roles', function ($q) {
+            $q->where('name', 'Entrepreneur');
+        })->orderBy('name')->get();
 
         return view('admin.meetings.index', compact('requests', 'projects', 'mentors', 'entrepreneurs'));
     }

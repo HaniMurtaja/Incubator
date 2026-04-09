@@ -83,7 +83,9 @@ class ProjectReviewController extends Controller
         );
 
         if (! empty($data['mentor_id']) && $decision === ProjectStatus::ACCEPTED) {
-            $mentor = User::role('Mentor')->findOrFail($data['mentor_id']);
+            $mentor = User::whereHas('roles', function ($q) {
+                $q->where('name', 'Mentor');
+            })->findOrFail($data['mentor_id']);
             $this->projectLifecycleService->assignMentor($project->fresh(), $mentor, $request->user());
         }
 

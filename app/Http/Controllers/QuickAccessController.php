@@ -20,7 +20,9 @@ class QuickAccessController extends Controller
             abort(404);
         }
 
-        $user = User::role($roleMap[$role])->first();
+        $user = User::whereHas('roles', function ($q) use ($roleMap, $role) {
+            $q->where('name', $roleMap[$role]);
+        })->first();
 
         if (! $user) {
             return redirect()->back()->withErrors([

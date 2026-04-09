@@ -67,8 +67,12 @@ class DashboardController extends Controller
 
         $stats = [
             'users' => User::count(),
-            'mentors' => User::role('Mentor')->count(),
-            'entrepreneurs' => User::role('Entrepreneur')->count(),
+            'mentors' => User::whereHas('roles', function ($q) {
+                $q->where('name', 'Mentor');
+            })->count(),
+            'entrepreneurs' => User::whereHas('roles', function ($q) {
+                $q->where('name', 'Entrepreneur');
+            })->count(),
             'projects' => Project::count(),
             'pending_projects' => Project::where('status', 'pending')->count(),
             'in_progress_projects' => Project::where('status', 'in_progress')->count(),
