@@ -13,6 +13,7 @@ class Project extends Model
     protected $fillable = [
         'entrepreneur_id',
         'mentor_id',
+        'incubator_round_id',
         'title',
         'description',
         'category',
@@ -39,6 +40,11 @@ class Project extends Model
     public function mentor()
     {
         return $this->belongsTo(User::class, 'mentor_id');
+    }
+
+    public function round()
+    {
+        return $this->belongsTo(IncubatorRound::class, 'incubator_round_id');
     }
 
     public function attachments()

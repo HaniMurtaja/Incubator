@@ -27,13 +27,22 @@ class CommandCenterController extends Controller
         $projects = Project::where('mentor_id', $request->user()->id)->orderBy('title')->get();
         $project = $projects->firstWhere('id', $request->input('project_id')) ?: $projects->first();
         $stages = collect();
+        $activeStageOrder = (int) $request->input('stage', 1);
 
         if ($project) {
             $this->ensureNineStages($project->id);
-            $stages = Stage::where('project_id', $project->id)->orderBy('stage_order')->get();
+            $stages = Stage::where('project_id', $project->id)
+                ->with(['tasks' => function ($q) {
+                    $q->orderByDesc('id');
+                }])
+                ->orderBy('stage_order')
+                ->get();
+            if (! $stages->pluck('stage_order')->contains($activeStageOrder)) {
+                $activeStageOrder = (int) optional($stages->first())->stage_order;
+            }
         }
 
-        return view('mentor.command-center.index', compact('projects', 'project', 'stages'));
+        return view('mentor.command-center.index', compact('projects', 'project', 'stages', 'activeStageOrder'));
     }
 
     public function updateStage(Request $request, Stage $stage)
@@ -47,6 +56,46 @@ class CommandCenterController extends Controller
         $stage->update($data);
 
         return back()->with('status', 'Stage updated.');
+    }
+
+    public function storeTask(Request $request, Stage $stage)
+    {
+        abort_unless((int) $stage->project->mentor_id === (int) $request->user()->id, 403);
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'mentor_comments' => ['nullable', 'string'],
+            'due_date' => ['nullable', 'date'],
+        ]);
+
+        $stage->tasks()->create([
+            'created_by' => $request->user()->id,
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'mentor_comments' => $data['mentor_comments'] ?? null,
+            'due_date' => $data['due_date'] ?? null,
+            'status' => 'not_started',
+        ]);
+
+        if ($stage->status === StageStatus::NOT_STARTED) {
+            $stage->update(['status' => StageStatus::IN_PROGRESS, 'started_at' => now()]);
+        }
+
+        return back()->with('status', app()->getLocale() === 'ar' ? 'تمت إضافة المهمة.' : 'Task added.');
+    }
+
+    public function updateTaskComment(Request $request, Stage $stage, \App\Models\Task $task)
+    {
+        abort_unless((int) $stage->project->mentor_id === (int) $request->user()->id, 403);
+        abort_unless((int) $task->stage_id === (int) $stage->id, 404);
+
+        $data = $request->validate([
+            'mentor_comments' => ['nullable', 'string'],
+        ]);
+
+        $task->update(['mentor_comments' => $data['mentor_comments'] ?? null]);
+
+        return back()->with('status', app()->getLocale() === 'ar' ? 'تم تحديث التعليق.' : 'Comment updated.');
     }
 
     protected function ensureNineStages($projectId)

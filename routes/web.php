@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MeetingRequestController;
 use App\Http\Controllers\Admin\AuditTrailController;
 use App\Http\Controllers\Admin\StageTemplateController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\IncubatorLifeCycleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Entrepreneur\ProjectController as EntrepreneurProjectController;
 use App\Http\Controllers\Entrepreneur\TaskSubmissionController;
@@ -53,6 +54,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('assignments', AssignmentLogController::class)->only(['index', 'store', 'destroy']);
         Route::resource('meetings', MeetingRequestController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('audit-trail', [AuditTrailController::class, 'index'])->name('audit.index');
+        Route::get('incubator-life-cycle', [IncubatorLifeCycleController::class, 'index'])->name('lifecycle.index');
+        Route::post('incubator-life-cycle/rounds', [IncubatorLifeCycleController::class, 'storeRound'])->name('lifecycle.rounds.store');
+        Route::patch('incubator-life-cycle/rounds/{round}', [IncubatorLifeCycleController::class, 'updateRound'])->name('lifecycle.rounds.update');
+        Route::delete('incubator-life-cycle/rounds/{round}', [IncubatorLifeCycleController::class, 'destroyRound'])->name('lifecycle.rounds.destroy');
+        Route::post('incubator-life-cycle/rounds/{round}/projects', [IncubatorLifeCycleController::class, 'storeProject'])->name('lifecycle.projects.store');
+        Route::delete('incubator-life-cycle/rounds/{round}/projects/{project}', [IncubatorLifeCycleController::class, 'destroyProject'])->name('lifecycle.projects.destroy');
     });
 
     Route::prefix('mentor')->name('mentor.')->middleware('role:Mentor')->group(function () {
@@ -60,18 +67,24 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('tasks', MentorTaskController::class);
         Route::get('command-center', [CommandCenterController::class, 'index'])->name('command.index');
         Route::patch('command-center/stages/{stage}', [CommandCenterController::class, 'updateStage'])->name('command.stages.update');
+        Route::post('command-center/stages/{stage}/tasks', [CommandCenterController::class, 'storeTask'])->name('command.tasks.store');
+        Route::patch('command-center/stages/{stage}/tasks/{task}/comment', [CommandCenterController::class, 'updateTaskComment'])->name('command.tasks.comment.update');
         Route::get('calendar', [MentorshipCalendarController::class, 'index'])->name('calendar.index');
         Route::get('calendar/events', [MentorshipCalendarController::class, 'events'])->name('calendar.events');
         Route::post('calendar/availability', [MentorshipCalendarController::class, 'storeAvailability'])->name('calendar.availability.store');
         Route::delete('calendar/availability/{slot}', [MentorshipCalendarController::class, 'destroyAvailability'])->name('calendar.availability.destroy');
         Route::get('projects', [MentorProjectController::class, 'index'])->name('projects.index');
         Route::get('projects/{project}', [MentorProjectController::class, 'show'])->name('projects.show');
+        Route::post('projects/{project}/stages/{stage}/tasks', [MentorProjectController::class, 'storeTask'])->name('projects.tasks.store');
+        Route::patch('projects/{project}/stages/{stage}/tasks/{task}/comment', [MentorProjectController::class, 'updateTaskComment'])->name('projects.tasks.comment.update');
+        Route::patch('projects/{project}/stages/{stage}/tasks/{task}/status', [MentorProjectController::class, 'updateTaskStatus'])->name('projects.tasks.status.update');
         Route::post('submissions/{submission}/evaluate', [MentorProjectController::class, 'evaluate'])->name('submissions.evaluate');
     });
 
     Route::prefix('entrepreneur')->name('entrepreneur.')->middleware('role:Entrepreneur')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'entrepreneur'])->name('dashboard');
         Route::resource('projects', EntrepreneurProjectController::class);
+        Route::patch('projects/{project}/tasks/{task}/status', [EntrepreneurProjectController::class, 'updateTaskStatus'])->name('projects.tasks.status.update');
         Route::resource('submissions', TaskSubmissionController::class)->only(['index', 'create', 'store', 'show']);
     });
 });

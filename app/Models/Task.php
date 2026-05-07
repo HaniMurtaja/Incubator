@@ -14,6 +14,7 @@ class Task extends Model
         'created_by',
         'title',
         'description',
+        'mentor_comments',
         'due_date',
         'status',
     ];

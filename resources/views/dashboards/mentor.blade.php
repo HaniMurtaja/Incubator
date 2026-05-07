@@ -9,10 +9,10 @@
 </div>
 
 <div class="d-flex flex-wrap gap-2 mb-4">
-    <a class="btn btn-dark btn-sm" href="{{ route('mentor.command.index') }}">Mentor Command Center</a>
-    <a class="btn btn-outline-secondary btn-sm" href="{{ route('mentor.calendar.index') }}">Mentorship Calendar</a>
-    <a class="btn btn-outline-primary btn-sm" href="{{ route('mentor.projects.index') }}">Projects</a>
-    <a class="btn btn-outline-primary btn-sm" href="{{ route('mentor.tasks.index') }}">Tasks</a>
+    <a class="btn btn-dark btn-sm" href="{{ route('mentor.command.index') }}">{{ app()->getLocale()==='ar'?'مركز قيادة الموجه':'Mentor Command Center' }}</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ route('mentor.calendar.index') }}">{{ app()->getLocale()==='ar'?'تقويم الإرشاد':'Mentorship Calendar' }}</a>
+    <a class="btn btn-outline-primary btn-sm" href="{{ route('mentor.projects.index') }}">{{ app()->getLocale()==='ar'?'المشاريع':'Projects' }}</a>
+    <a class="btn btn-outline-primary btn-sm" href="{{ route('mentor.tasks.index') }}">{{ app()->getLocale()==='ar'?'المهام':'Tasks' }}</a>
 </div>
 
 <div class="row row-cards">

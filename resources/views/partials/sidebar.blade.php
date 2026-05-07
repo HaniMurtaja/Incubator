@@ -5,6 +5,7 @@
     <a class="nav-link text-white d-block" href="{{ route('admin.assignments.index') }}">{{ app()->getLocale()==='ar'?'سجل التعيينات':'Assignments Log' }}</a>
     <a class="nav-link text-white d-block" href="{{ route('admin.meetings.index') }}">{{ app()->getLocale()==='ar'?'طلبات الاجتماعات':'Meeting Requests' }}</a>
     <a class="nav-link text-white d-block" href="{{ route('admin.audit.index') }}">{{ app()->getLocale()==='ar'?'سجل تدقيق النظام':'System Audit Trail' }}</a>
+    <a class="nav-link text-white d-block" href="{{ route('admin.lifecycle.index') }}">{{ app()->getLocale()==='ar'?'جولات الاحتضان':'Incubation Rounds' }}</a>
     <a class="nav-link text-white d-block" href="{{ route('admin.stages.index') }}">{{ app()->getLocale()==='ar'?'مراحل الاحتضان':'Stages' }}</a>
 @elseif(auth()->user()->hasRole('Mentor'))
     <a class="nav-link text-white d-block" href="{{ route('mentor.dashboard') }}">{{ app()->getLocale()==='ar'?'لوحة الموجه':'Mentor Dashboard' }}</a>

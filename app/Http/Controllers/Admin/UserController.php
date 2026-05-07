@@ -28,12 +28,25 @@ class UserController extends Controller
         }
 
         if ($request->filled('role')) {
-            $query->role($request->input('role'));
+            $query->whereHas('roles', function ($q) use ($request) {
+                $q->where('name', $request->input('role'));
+            });
         }
 
         $users = $query->paginate(15)->withQueryString();
+        $roleStats = [
+            'admins' => User::whereHas('roles', function ($q) {
+                $q->where('name', 'Admin');
+            })->count(),
+            'mentors' => User::whereHas('roles', function ($q) {
+                $q->where('name', 'Mentor');
+            })->count(),
+            'entrepreneurs' => User::whereHas('roles', function ($q) {
+                $q->where('name', 'Entrepreneur');
+            })->count(),
+        ];
 
-        return view('admin.users.index', compact('users', 'filters'));
+        return view('admin.users.index', compact('users', 'filters', 'roleStats'));
     }
 
     /**

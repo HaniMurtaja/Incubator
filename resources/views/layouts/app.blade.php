@@ -10,14 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler.min.css">
     @php
-        $isAdminArea = request()->routeIs('admin.*') || request()->is('admin/*');
         $isAr = app()->getLocale() === 'ar';
-        $adminArabicLayout = $isAdminArea && $isAr;
+        $rtlDashboardLayout = auth()->check() && $isAr;
     @endphp
     <style>
         body { font-family: 'Cairo', sans-serif; }
-        @if($adminArabicLayout)
-        /* Move desktop vertical sidebar to the right for Arabic admin pages */
+        .locale-switch {
+            border: 0;
+            color: #fff !important;
+            font-weight: 700;
+            box-shadow: 0 .2rem .65rem rgba(0, 0, 0, .15);
+        }
+        .locale-switch-ar { background: #1d4ed8; }
+        .locale-switch-en { background: #2563eb; }
+        @if($rtlDashboardLayout)
+        /* Move desktop vertical sidebar to the right for Arabic dashboard pages */
         @media (min-width: 992px) {
             .page {
                 --admin-sidebar-width: var(--tblr-navbar-width, 15rem);
@@ -38,7 +45,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="{{ $adminArabicLayout ? 'admin-ar-layout' : '' }}">
+<body class="{{ $rtlDashboardLayout ? 'admin-ar-layout' : '' }}">
 @php
     $unreadNotificationsCount = 0;
     if (auth()->check()) {
@@ -63,8 +70,8 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="page-title">@yield('title', 'لوحة التحكم')</h2>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('locale.switch', 'ar') }}" class="btn btn-outline-light btn-sm">{{ __('ui.switch_ar') }}</a>
-                    <a href="{{ route('locale.switch', 'en') }}" class="btn btn-outline-light btn-sm">{{ __('ui.switch_en') }}</a>
+                    <a href="{{ route('locale.switch', 'ar') }}" class="btn btn-sm locale-switch locale-switch-ar">{{ __('ui.switch_ar') }}</a>
+                    <a href="{{ route('locale.switch', 'en') }}" class="btn btn-sm locale-switch locale-switch-en">{{ __('ui.switch_en') }}</a>
                     <a href="{{ route('notifications.index') }}" class="btn btn-outline-primary btn-sm">
                         Notifications
                         @if($unreadNotificationsCount > 0)
@@ -91,6 +98,7 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/js/tabler.min.js"></script>
 @stack('scripts')
 </body>
 </html>

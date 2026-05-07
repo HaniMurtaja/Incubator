@@ -3,7 +3,10 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -39,7 +42,28 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            // Keep default reporting pipeline; centralized for future Sentry/monitoring hooks.
+            $request = request();
+            if (! $request) {
+                return;
+            }
+
+            $traceId = (string) Str::uuid();
+            $context = [
+                'trace_id' => $traceId,
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'ip' => $request->ip(),
+                'user_id' => optional($request->user())->id,
+                'user_agent' => $request->userAgent(),
+            ];
+
+            if ($e instanceof QueryException) {
+                $context['sql'] = $e->getSql();
+                $context['bindings'] = $e->getBindings();
+                $context['connection'] = $e->getConnectionName();
+            }
+
+            Log::error($e->getMessage(), $context);
         });
 
         $this->renderable(function (AuthorizationException $e, $request) {

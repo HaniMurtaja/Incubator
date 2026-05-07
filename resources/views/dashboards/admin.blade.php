@@ -20,38 +20,81 @@
 
 @section('content')
 <style>
+.admin-analytics-wrap {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
 .admin-stat-card {
-    transition: transform .18s ease, box-shadow .18s ease;
-    border: 1px solid rgba(98,105,118,.12);
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    border: 0;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f7f9ff 100%);
     cursor: pointer;
     height: 100%;
+    box-shadow: 0 .5rem 1.2rem rgba(15, 23, 42, .08);
 }
 .admin-stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .75rem 1.5rem rgba(32,107,196,.12);
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 .95rem 1.8rem rgba(32,107,196,.18);
 }
 .admin-stat-card .stat-icon {
     width: 2.75rem;
     height: 2.75rem;
-    border-radius: .5rem;
+    border-radius: .75rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
 }
+.admin-stat-card .stat-icon svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+.admin-kpi-label {
+    font-size: .95rem !important;
+    font-weight: 700;
+    color: #334155 !important;
+}
+.admin-kpi-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+.admin-kpi-meta {
+    font-size: .9rem;
+}
+.analysis-chip {
+    border: 0;
+    border-radius: 999px;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+    box-shadow: 0 .4rem 1rem rgba(15, 23, 42, .08);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.analysis-chip:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 .8rem 1.4rem rgba(2, 132, 199, .15);
+}
 </style>
 
+<div class="admin-analytics-wrap">
 <div class="row row-cards mb-3">
     <div class="col-sm-6 col-lg-3">
         <a href="{{ route('admin.users.index') }}" class="text-decoration-none text-reset">
             <div class="card card-body admin-stat-card">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small">{{ $isAr ? 'إجمالي المستخدمين' : 'Total users' }}</div>
-                        <h3 class="mb-0 mt-1">{{ $stats['users'] }}</h3>
-                        <div class="text-muted small mt-1">{{ $isAr ? 'الموجهون' : 'Mentors' }}: {{ $stats['mentors'] }} · {{ $isAr ? 'رائدون' : 'Entrepreneurs' }}: {{ $stats['entrepreneurs'] }}</div>
+                        <div class="text-muted admin-kpi-label">{{ $isAr ? 'إجمالي المستخدمين' : 'Total users' }}</div>
+                        <h3 class="mb-0 mt-1 admin-kpi-value">{{ $stats['users'] }}</h3>
+                        <div class="text-muted mt-1 admin-kpi-meta">{{ $isAr ? 'الموجهون' : 'Mentors' }}: {{ $stats['mentors'] }} · {{ $isAr ? 'رائدون' : 'Entrepreneurs' }}: {{ $stats['entrepreneurs'] }}</div>
                     </div>
-                    <div class="stat-icon bg-primary-lt text-primary">👥</div>
+                    <div class="stat-icon bg-primary-lt text-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </a>
@@ -61,11 +104,15 @@
             <div class="card card-body admin-stat-card">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small">{{ $isAr ? 'إجمالي المشاريع' : 'Total projects' }}</div>
-                        <h3 class="mb-0 mt-1">{{ $stats['projects'] }}</h3>
-                        <div class="text-muted small mt-1">{{ $isAr ? 'مكتمل' : 'Completed' }}: {{ $stats['completed_projects'] }}</div>
+                        <div class="text-muted admin-kpi-label">{{ $isAr ? 'إجمالي المشاريع' : 'Total projects' }}</div>
+                        <h3 class="mb-0 mt-1 admin-kpi-value">{{ $stats['projects'] }}</h3>
+                        <div class="text-muted mt-1 admin-kpi-meta">{{ $isAr ? 'مكتمل' : 'Completed' }}: {{ $stats['completed_projects'] }}</div>
                     </div>
-                    <div class="stat-icon bg-azure-lt text-azure">📁</div>
+                    <div class="stat-icon bg-azure-lt text-azure">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </a>
@@ -75,11 +122,18 @@
             <div class="card card-body admin-stat-card">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small">{{ $isAr ? 'قيد المراجعة' : 'Pending review' }}</div>
-                        <h3 class="mb-0 mt-1">{{ $stats['pending_projects'] }}</h3>
-                        <div class="text-muted small mt-1">{{ $isAr ? 'مقبول / مرفوض' : 'Accepted / rejected' }}: {{ $stats['accepted_projects'] }} / {{ $stats['rejected_projects'] }}</div>
+                        <div class="text-muted admin-kpi-label">{{ $isAr ? 'قيد المراجعة' : 'Pending review' }}</div>
+                        <h3 class="mb-0 mt-1 admin-kpi-value">{{ $stats['pending_projects'] }}</h3>
+                        <div class="text-muted mt-1 admin-kpi-meta">{{ $isAr ? 'مقبول / مرفوض' : 'Accepted / rejected' }}: {{ $stats['accepted_projects'] }} / {{ $stats['rejected_projects'] }}</div>
                     </div>
-                    <div class="stat-icon bg-warning-lt text-warning">⏳</div>
+                    <div class="stat-icon bg-warning-lt text-warning">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 2h12"></path>
+                            <path d="M6 22h12"></path>
+                            <path d="M8 2v6a4 4 0 0 0 8 0V2"></path>
+                            <path d="M16 22v-6a4 4 0 0 0-8 0v6"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </a>
@@ -89,11 +143,16 @@
             <div class="card card-body admin-stat-card">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small">{{ $isAr ? 'قيد التنفيذ' : 'In progress' }}</div>
-                        <h3 class="mb-0 mt-1">{{ $stats['in_progress_projects'] }}</h3>
-                        <div class="text-muted small mt-1">{{ $isAr ? 'مهام' : 'Tasks' }}: {{ $stats['tasks_total'] }}</div>
+                        <div class="text-muted admin-kpi-label">{{ $isAr ? 'قيد التنفيذ' : 'In progress' }}</div>
+                        <h3 class="mb-0 mt-1 admin-kpi-value">{{ $stats['in_progress_projects'] }}</h3>
+                        <div class="text-muted mt-1 admin-kpi-meta">{{ $isAr ? 'مهام' : 'Tasks' }}: {{ $stats['tasks_total'] }}</div>
                     </div>
-                    <div class="stat-icon bg-green-lt text-green">⚙️</div>
+                    <div class="stat-icon bg-green-lt text-green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 9.93 3.1V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </a>
@@ -102,21 +161,21 @@
 
 <div class="row row-cards mb-4">
     <div class="col-md-4">
-        <div class="card card-body h-100">
+        <div class="analysis-chip h-100">
             <div class="text-muted small">{{ $isAr ? 'طابور التسليمات' : 'Submission queue' }}</div>
             <h3 class="mb-0">{{ $stats['submissions_pending'] }}</h3>
             <div class="text-muted small">{{ $isAr ? 'بانتظار المراجعة' : 'Awaiting mentor review' }}</div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card card-body h-100">
+        <div class="analysis-chip h-100">
             <div class="text-muted small">{{ $isAr ? 'تسليمات معتمدة' : 'Approved submissions' }}</div>
             <h3 class="mb-0">{{ $stats['submissions_approved'] }}</h3>
             <div class="text-muted small">{{ $isAr ? 'بعد التقييم' : 'After evaluation' }}</div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card card-body h-100">
+        <div class="analysis-chip h-100">
             <div class="text-muted small">{{ $isAr ? 'مشاريع مكتملة' : 'Completed projects' }}</div>
             <h3 class="mb-0">{{ $stats['completed_projects'] }}</h3>
             <div class="text-muted small">{{ $isAr ? 'خرجت من الحاضنة' : 'Graduated / closed' }}</div>
@@ -188,6 +247,7 @@
             <span class="btn btn-outline-primary btn-sm">{{ $isAr ? 'المراحل' : 'Manage stages' }}</span>
         </div>
     </div>
+</div>
 </div>
 @endsection
 

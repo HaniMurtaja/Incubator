@@ -97,6 +97,20 @@ class ProjectController extends Controller
         return view('entrepreneur.projects.show', compact('project'));
     }
 
+    public function updateTaskStatus(Request $request, Project $project, \App\Models\Task $task)
+    {
+        abort_unless((int) $project->entrepreneur_id === (int) auth()->id(), 403);
+        abort_unless((int) optional($task->stage)->project_id === (int) $project->id, 404);
+
+        $data = $request->validate([
+            'status' => ['required', 'in:in_progress,submitted'],
+        ]);
+
+        $task->update(['status' => $data['status']]);
+
+        return back()->with('status', app()->getLocale() === 'ar' ? 'تم تحديث حالة المهمة.' : 'Task status updated.');
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
