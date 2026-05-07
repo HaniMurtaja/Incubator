@@ -13,11 +13,14 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\IncubatorLifeCycleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Entrepreneur\ProjectController as EntrepreneurProjectController;
+use App\Http\Controllers\Entrepreneur\MeetingController as EntrepreneurMeetingController;
+use App\Http\Controllers\Entrepreneur\RoundController as EntrepreneurRoundController;
 use App\Http\Controllers\Entrepreneur\TaskSubmissionController;
 use App\Http\Controllers\Mentor\ProjectController as MentorProjectController;
 use App\Http\Controllers\Mentor\TaskController as MentorTaskController;
 use App\Http\Controllers\Mentor\CommandCenterController;
 use App\Http\Controllers\Mentor\MentorshipCalendarController;
+use App\Http\Controllers\Mentor\RoundController as MentorRoundController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,18 +76,28 @@ Route::middleware(['auth'])->group(function () {
         Route::get('calendar/events', [MentorshipCalendarController::class, 'events'])->name('calendar.events');
         Route::post('calendar/availability', [MentorshipCalendarController::class, 'storeAvailability'])->name('calendar.availability.store');
         Route::delete('calendar/availability/{slot}', [MentorshipCalendarController::class, 'destroyAvailability'])->name('calendar.availability.destroy');
+        Route::post('calendar/meetings', [MentorshipCalendarController::class, 'storeMeeting'])->name('calendar.meetings.store');
+        Route::patch('calendar/meeting-requests/{meeting}/status', [MentorshipCalendarController::class, 'updateMeetingRequestStatus'])->name('calendar.requests.status.update');
+        Route::get('rounds', [MentorRoundController::class, 'index'])->name('rounds.index');
         Route::get('projects', [MentorProjectController::class, 'index'])->name('projects.index');
         Route::get('projects/{project}', [MentorProjectController::class, 'show'])->name('projects.show');
         Route::post('projects/{project}/stages/{stage}/tasks', [MentorProjectController::class, 'storeTask'])->name('projects.tasks.store');
         Route::patch('projects/{project}/stages/{stage}/tasks/{task}/comment', [MentorProjectController::class, 'updateTaskComment'])->name('projects.tasks.comment.update');
         Route::patch('projects/{project}/stages/{stage}/tasks/{task}/status', [MentorProjectController::class, 'updateTaskStatus'])->name('projects.tasks.status.update');
+        Route::post('projects/{project}/stages/{stage}/tasks/{task}/messages', [MentorProjectController::class, 'sendTaskMessage'])->name('projects.tasks.messages.store');
         Route::post('submissions/{submission}/evaluate', [MentorProjectController::class, 'evaluate'])->name('submissions.evaluate');
     });
 
     Route::prefix('entrepreneur')->name('entrepreneur.')->middleware('role:Entrepreneur')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'entrepreneur'])->name('dashboard');
         Route::resource('projects', EntrepreneurProjectController::class);
+        Route::get('meetings', [EntrepreneurMeetingController::class, 'index'])->name('meetings.index');
+        Route::get('meetings/availability-events', [EntrepreneurMeetingController::class, 'availabilityEvents'])->name('meetings.availability.events');
+        Route::post('meetings', [EntrepreneurMeetingController::class, 'store'])->name('meetings.store');
+        Route::get('rounds', [EntrepreneurRoundController::class, 'index'])->name('rounds.index');
         Route::patch('projects/{project}/tasks/{task}/status', [EntrepreneurProjectController::class, 'updateTaskStatus'])->name('projects.tasks.status.update');
+        Route::post('projects/{project}/tasks/{task}/submit', [EntrepreneurProjectController::class, 'submitTaskWork'])->name('projects.tasks.submit');
+        Route::post('projects/{project}/tasks/{task}/messages', [EntrepreneurProjectController::class, 'sendTaskMessage'])->name('projects.tasks.messages.store');
         Route::resource('submissions', TaskSubmissionController::class)->only(['index', 'create', 'store', 'show']);
     });
 });

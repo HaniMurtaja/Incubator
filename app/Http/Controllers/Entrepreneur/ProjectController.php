@@ -6,11 +6,29 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProjectRequest;
 use App\Models\Project;
 use App\Models\ProjectAttachment;
+use App\Models\Stage;
+use App\Models\Task;
+use App\Models\TaskMessage;
+use App\Models\TaskSubmission;
+use App\Models\TaskSubmissionFile;
 use App\Support\Statuses\ProjectStatus;
+use App\Support\Statuses\StageStatus;
+use App\Support\Statuses\SubmissionStatus;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
+    protected $defaultPhaseNames = [
+        1 => 'Idea Maturation',
+        2 => 'Market Analysis',
+        3 => 'Audience Study',
+        4 => 'Competitor Analysis',
+        5 => 'Pricing & Sales',
+        6 => 'Team & HR',
+        7 => 'Financial Plans',
+        8 => 'Operational Plan',
+        9 => 'Investment Plan',
+    ];
     /**
      * Display a listing of the resource.
      *
@@ -92,7 +110,8 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         abort_unless((int) $project->entrepreneur_id === (int) auth()->id(), 403);
-        $project->load(['mentor', 'attachments', 'stages.tasks.submissions.evaluation', 'activityLogs.actor']);
+        $this->ensureNineStages($project->id);
+        $project->load(['mentor', 'attachments', 'stages.tasks.submissions.files', 'stages.tasks.messages.user', 'activityLogs.actor']);
 
         return view('entrepreneur.projects.show', compact('project'));
     }
@@ -109,6 +128,70 @@ class ProjectController extends Controller
         $task->update(['status' => $data['status']]);
 
         return back()->with('status', app()->getLocale() === 'ar' ? 'تم تحديث حالة المهمة.' : 'Task status updated.');
+    }
+
+    public function submitTaskWork(Request $request, Project $project, Task $task)
+    {
+        abort_unless((int) $project->entrepreneur_id === (int) auth()->id(), 403);
+        abort_unless((int) optional($task->stage)->project_id === (int) $project->id, 404);
+
+        $data = $request->validate([
+            'notes' => ['nullable', 'string'],
+            'files' => ['nullable', 'array'],
+            'files.*' => ['file', 'max:10240'],
+        ]);
+
+        $submission = TaskSubmission::create([
+            'task_id' => $task->id,
+            'submitted_by' => auth()->id(),
+            'notes' => $data['notes'] ?? null,
+            'status' => SubmissionStatus::SUBMITTED,
+            'submitted_at' => now(),
+        ]);
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                TaskSubmissionFile::create([
+                    'task_submission_id' => $submission->id,
+                    'path' => $file->store('submissions/'.$submission->id, 'local'),
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime' => $file->getClientMimeType(),
+                    'size' => $file->getSize(),
+                ]);
+            }
+        }
+
+        $task->update(['status' => 'submitted']);
+
+        return back()->with('status', app()->getLocale() === 'ar' ? 'تم إرسال التسليم.' : 'Task submission sent.');
+    }
+
+    public function sendTaskMessage(Request $request, Project $project, Task $task)
+    {
+        abort_unless((int) $project->entrepreneur_id === (int) auth()->id(), 403);
+        abort_unless((int) optional($task->stage)->project_id === (int) $project->id, 404);
+
+        $data = $request->validate([
+            'message' => ['required', 'string', 'max:2000'],
+        ]);
+
+        TaskMessage::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->id(),
+            'message' => $data['message'],
+        ]);
+
+        return back()->with('status', app()->getLocale() === 'ar' ? 'تم إرسال الرسالة.' : 'Message sent.');
+    }
+
+    protected function ensureNineStages($projectId)
+    {
+        foreach ($this->defaultPhaseNames as $order => $name) {
+            Stage::firstOrCreate(
+                ['project_id' => $projectId, 'stage_order' => $order],
+                ['name' => $name, 'status' => StageStatus::NOT_STARTED]
+            );
+        }
     }
 
     /**

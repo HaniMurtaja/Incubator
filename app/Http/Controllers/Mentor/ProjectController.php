@@ -60,7 +60,7 @@ class ProjectController extends Controller
         abort_unless((int) $project->mentor_id === (int) auth()->id(), 403);
         $this->ensureNineStages($project->id);
         $activeStageOrder = (int) request('stage', 1);
-        $project->load(['entrepreneur', 'stages.tasks.submissions.evaluation', 'activityLogs.actor']);
+        $project->load(['entrepreneur', 'stages.tasks.submissions.evaluation', 'stages.tasks.messages.user', 'activityLogs.actor']);
         if (! $project->stages->pluck('stage_order')->contains($activeStageOrder)) {
             $activeStageOrder = (int) optional($project->stages->sortBy('stage_order')->first())->stage_order;
         }
@@ -138,6 +138,25 @@ class ProjectController extends Controller
         $task->update(['status' => $data['status']]);
 
         return back()->with('status', app()->getLocale() === 'ar' ? 'تم تحديث حالة المهمة.' : 'Task status updated.');
+    }
+
+    public function sendTaskMessage(Request $request, Project $project, Stage $stage, Task $task)
+    {
+        abort_unless((int) $project->mentor_id === (int) auth()->id(), 403);
+        abort_unless((int) $stage->project_id === (int) $project->id, 404);
+        abort_unless((int) $task->stage_id === (int) $stage->id, 404);
+
+        $data = $request->validate([
+            'message' => ['required', 'string', 'max:2000'],
+        ]);
+
+        \App\Models\TaskMessage::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->id(),
+            'message' => $data['message'],
+        ]);
+
+        return back()->with('status', app()->getLocale() === 'ar' ? 'تم إرسال الرسالة.' : 'Message sent.');
     }
 
     protected function ensureNineStages($projectId)

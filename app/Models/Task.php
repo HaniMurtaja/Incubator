@@ -37,4 +37,9 @@ class Task extends Model
     {
         return $this->hasMany(TaskSubmission::class);
     }
+
+    public function messages()
+    {
+        return $this->hasMany(TaskMessage::class)->latest();
+    }
 }
