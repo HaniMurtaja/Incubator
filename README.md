@@ -33,7 +33,7 @@ Virtual business incubator platform built with Laravel for managing startup idea
 
 ## Requirements
 
-- PHP 7.4+
+- PHP 8.1 or 8.2 (recommended; Laravel 8.83 runs on either)
 - Composer 2+
 - MySQL 5.7+ or 8+
 - Node.js + npm (for frontend asset build if needed)
