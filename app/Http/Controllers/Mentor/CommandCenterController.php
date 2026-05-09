@@ -30,6 +30,7 @@ class CommandCenterController extends Controller
         $activeStageOrder = (int) $request->input('stage', 1);
 
         if ($project) {
+            $project->loadMissing(['entrepreneur', 'activityLogs']);
             $this->ensureNineStages($project->id);
             $stages = Stage::where('project_id', $project->id)
                 ->with(['tasks' => function ($q) {

@@ -60,7 +60,7 @@ class ProjectController extends Controller
         abort_unless((int) $project->mentor_id === (int) auth()->id(), 403);
         $this->ensureNineStages($project->id);
         $activeStageOrder = (int) request('stage', 1);
-        $project->load(['entrepreneur', 'stages.tasks.submissions.evaluation', 'stages.tasks.messages.user', 'activityLogs.actor']);
+        $project->load(['entrepreneur', 'stages.tasks.submissions.files', 'stages.tasks.submissions.evaluation', 'stages.tasks.messages.user', 'activityLogs.actor']);
         if (! $project->stages->pluck('stage_order')->contains($activeStageOrder)) {
             $activeStageOrder = (int) optional($project->stages->sortBy('stage_order')->first())->stage_order;
         }

@@ -107,13 +107,18 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Project $project)
+    public function show(Request $request, Project $project)
     {
         abort_unless((int) $project->entrepreneur_id === (int) auth()->id(), 403);
         $this->ensureNineStages($project->id);
         $project->load(['mentor', 'attachments', 'stages.tasks.submissions.files', 'stages.tasks.messages.user', 'activityLogs.actor']);
 
-        return view('entrepreneur.projects.show', compact('project'));
+        $activeStageOrder = (int) $request->input('stage', 1);
+        if (! $project->stages->pluck('stage_order')->contains($activeStageOrder)) {
+            $activeStageOrder = (int) optional($project->stages->sortBy('stage_order')->first())->stage_order;
+        }
+
+        return view('entrepreneur.projects.show', compact('project', 'activeStageOrder'));
     }
 
     public function updateTaskStatus(Request $request, Project $project, \App\Models\Task $task)
@@ -122,7 +127,7 @@ class ProjectController extends Controller
         abort_unless((int) optional($task->stage)->project_id === (int) $project->id, 404);
 
         $data = $request->validate([
-            'status' => ['required', 'in:in_progress,submitted'],
+            'status' => ['required', 'in:not_started,in_progress,submitted'],
         ]);
 
         $task->update(['status' => $data['status']]);
