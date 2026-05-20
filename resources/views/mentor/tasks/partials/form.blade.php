@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label class="form-label">Stage</label>
+    <label class="form-label">{{ __('ui.stage') }}</label>
     <select class="form-select" name="stage_id" required>
         @foreach($stages as $stage)
             <option value="{{ $stage->id }}" @if(old('stage_id', $task->stage_id ?? '') == $stage->id) selected @endif>
@@ -9,15 +9,14 @@
     </select>
 </div>
 <div class="mb-3">
-    <label class="form-label">Title</label>
+    <label class="form-label">{{ __('ui.title') }}</label>
     <input class="form-control" name="title" value="{{ old('title', $task->title ?? '') }}" required>
 </div>
 <div class="mb-3">
-    <label class="form-label">Description</label>
+    <label class="form-label">{{ __('ui.description') }}</label>
     <textarea class="form-control" name="description">{{ old('description', $task->description ?? '') }}</textarea>
 </div>
 <div class="mb-3">
-    <label class="form-label">Due date</label>
+    <label class="form-label">{{ __('ui.due_date') }}</label>
     <input class="form-control" type="date" name="due_date" value="{{ old('due_date', isset($task->due_date) ? $task->due_date->format('Y-m-d') : '') }}">
 </div>
-

@@ -197,6 +197,38 @@
         </div>
     </div>
     <div class="mt-3">{{ $rounds->links() }}</div>
+
+    <div class="modal fade" id="createRoundModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ $isAr ? 'إنشاء جولة جديدة' : 'Create New Round' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ route('admin.lifecycle.rounds.store') }}" class="row g-2">
+                        @csrf
+                        <div class="col-md-4"><input class="form-control" name="name" placeholder="{{ $isAr ? 'اسم الجولة' : 'Round name' }}" required></div>
+                        <div class="col-md-2"><input class="form-control" type="date" name="start_date" required></div>
+                        <div class="col-md-2"><input class="form-control" type="date" name="end_date" required></div>
+                        <div class="col-md-4"><input class="form-control" name="description" placeholder="{{ $isAr ? 'الوصف' : 'Description' }}"></div>
+                        <div class="col-12 mt-2">
+                            <div class="small text-muted mb-2">{{ $isAr ? 'الرعاة (يمكن إضافة أكثر من راعٍ)' : 'Sponsors (multi-sponsor supported)' }}</div>
+                            <div id="sponsorRows">
+                                <div class="row g-2 mb-2 sponsor-row">
+                                    <div class="col-md-5"><input class="form-control" name="sponsors[0][name]" placeholder="{{ $isAr ? 'اسم الراعي' : 'Sponsor name' }}"></div>
+                                    <div class="col-md-6"><input class="form-control" name="sponsors[0][logo_path]" placeholder="{{ $isAr ? 'رابط الشعار' : 'Logo URL' }}"></div>
+                                    <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100 remove-sponsor">-</button></div>
+                                </div>
+                            </div>
+                            <button type="button" id="addSponsorBtn" class="btn btn-outline-primary btn-sm">{{ $isAr ? 'إضافة راعٍ' : 'Add Sponsor' }}</button>
+                        </div>
+                        <div class="col-12"><button class="btn btn-primary btn-sm">{{ $isAr ? 'حفظ الجولة' : 'Save Round' }}</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @else
     <div class="card mb-3">
         <div class="card-body">
@@ -217,42 +249,65 @@
 
     @if($selectedRound)
         <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>{{ $isAr ? 'إضافة مشروع للجولة' : 'Add Project to Round' }}: {{ $selectedRound->name }}</span>
-                <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#newRoundProjectForm">{{ $isAr ? 'إضافة مشروع جديد' : 'Add New Project' }}</button>
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="fw-semibold">{{ $isAr ? 'مشاريع الجولة' : 'Round projects' }}: {{ $selectedRound->name }}</span>
+                <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#addRoundProjectModal">
+                    {{ $isAr ? 'إضافة مشروع جديد' : 'Add New Project' }}
+                </button>
             </div>
-            <div id="newRoundProjectForm" class="collapse {{ !empty($openAddProject) ? 'show' : '' }}">
-            <div class="card-body">
-                <form method="post" action="{{ route('admin.lifecycle.projects.store', $selectedRound) }}" class="row g-2">
-                    @csrf
-                    <div class="col-md-3"><input class="form-control" name="title" placeholder="{{ $isAr ? 'اسم المشروع' : 'Project name' }}" required></div>
-                    <div class="col-md-3"><input class="form-control" name="description" placeholder="{{ $isAr ? 'الوصف' : 'Description' }}" required></div>
-                    <div class="col-md-2">
-                        <select class="form-select" name="status" required>
-                            @foreach(['pending','accepted','rejected','in_progress','completed'] as $status)
-                                <option value="{{ $status }}">{{ $status }}</option>
-                            @endforeach
-                        </select>
+        </div>
+
+        <div class="modal fade" id="addRoundProjectModal" tabindex="-1" aria-labelledby="addRoundProjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addRoundProjectModalLabel">{{ $isAr ? 'إضافة مشروع للجولة' : 'Add project to round' }} — {{ $selectedRound->name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="col-md-2">
-                        <select class="form-select" name="mentor_id">
-                            <option value="">{{ $isAr ? 'الموجه' : 'Mentor' }}</option>
-                            @foreach($mentors as $mentor)
-                                <option value="{{ $mentor->id }}">{{ $mentor->name }}</option>
-                            @endforeach
-                        </select>
+                    <div class="modal-body">
+                        <form method="post" action="{{ route('admin.lifecycle.projects.store', $selectedRound) }}" class="row g-2">
+                            @csrf
+                            <div class="col-md-6">
+                                <label class="form-label">{{ $isAr ? 'اسم المشروع' : 'Project name' }}</label>
+                                <input class="form-control" name="title" placeholder="{{ $isAr ? 'اسم المشروع' : 'Project name' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{{ $isAr ? 'الحالة' : 'Status' }}</label>
+                                <select class="form-select" name="status" required>
+                                    @foreach(['pending','accepted','rejected','in_progress','completed'] as $status)
+                                        <option value="{{ $status }}">{{ $status }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">{{ $isAr ? 'الوصف' : 'Description' }}</label>
+                                <input class="form-control" name="description" placeholder="{{ $isAr ? 'الوصف' : 'Description' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{{ $isAr ? 'الموجه' : 'Mentor' }}</label>
+                                <select class="form-select" name="mentor_id">
+                                    <option value="">{{ $isAr ? '—' : '—' }}</option>
+                                    @foreach($mentors as $mentor)
+                                        <option value="{{ $mentor->id }}">{{ $mentor->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{{ $isAr ? 'رائد الأعمال' : 'Entrepreneur' }}</label>
+                                <select class="form-select" name="entrepreneur_id" required>
+                                    <option value="">{{ $isAr ? 'اختر…' : 'Choose…' }}</option>
+                                    @foreach($entrepreneurs as $entrepreneur)
+                                        <option value="{{ $entrepreneur->id }}">{{ $entrepreneur->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12 text-end mt-2">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ $isAr ? 'إلغاء' : 'Cancel' }}</button>
+                                <button type="submit" class="btn btn-primary">{{ $isAr ? 'إضافة' : 'Add' }}</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-2">
-                        <select class="form-select" name="entrepreneur_id" required>
-                            <option value="">{{ $isAr ? 'رائد الأعمال' : 'Entrepreneur' }}</option>
-                            @foreach($entrepreneurs as $entrepreneur)
-                                <option value="{{ $entrepreneur->id }}">{{ $entrepreneur->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12"><button class="btn btn-primary btn-sm">{{ $isAr ? 'إضافة' : 'Add' }}</button></div>
-                </form>
-            </div>
+                </div>
             </div>
         </div>
     @endif
@@ -296,40 +351,6 @@
 @endif
 @endsection
 
-@if($activeTab === 'rounds')
-<div class="modal fade" id="createRoundModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ $isAr ? 'إنشاء جولة جديدة' : 'Create New Round' }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="{{ route('admin.lifecycle.rounds.store') }}" class="row g-2">
-                    @csrf
-                    <div class="col-md-4"><input class="form-control" name="name" placeholder="{{ $isAr ? 'اسم الجولة' : 'Round name' }}" required></div>
-                    <div class="col-md-2"><input class="form-control" type="date" name="start_date" required></div>
-                    <div class="col-md-2"><input class="form-control" type="date" name="end_date" required></div>
-                    <div class="col-md-4"><input class="form-control" name="description" placeholder="{{ $isAr ? 'الوصف' : 'Description' }}"></div>
-                    <div class="col-12 mt-2">
-                        <div class="small text-muted mb-2">{{ $isAr ? 'الرعاة (يمكن إضافة أكثر من راعٍ)' : 'Sponsors (multi-sponsor supported)' }}</div>
-                        <div id="sponsorRows">
-                            <div class="row g-2 mb-2 sponsor-row">
-                                <div class="col-md-5"><input class="form-control" name="sponsors[0][name]" placeholder="{{ $isAr ? 'اسم الراعي' : 'Sponsor name' }}"></div>
-                                <div class="col-md-6"><input class="form-control" name="sponsors[0][logo_path]" placeholder="{{ $isAr ? 'رابط الشعار' : 'Logo URL' }}"></div>
-                                <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100 remove-sponsor">-</button></div>
-                            </div>
-                        </div>
-                        <button type="button" id="addSponsorBtn" class="btn btn-outline-primary btn-sm">{{ $isAr ? 'إضافة راعٍ' : 'Add Sponsor' }}</button>
-                    </div>
-                    <div class="col-12"><button class="btn btn-primary btn-sm">{{ $isAr ? 'حفظ الجولة' : 'Save Round' }}</button></div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
 @push('scripts')
 <script>
 (function () {
@@ -359,5 +380,15 @@
     });
 })();
 </script>
+@if(!empty($openAddProject) && !empty($selectedRound))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var m = document.getElementById('addRoundProjectModal');
+    if (m && window.bootstrap && window.bootstrap.Modal) {
+        new bootstrap.Modal(m).show();
+    }
+});
+</script>
+@endif
 @endpush
 

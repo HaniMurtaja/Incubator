@@ -1,32 +1,65 @@
 @extends('layouts.app')
-@section('title', 'Projects Review')
+
+@php $isAr = app()->getLocale() === 'ar'; @endphp
+
+@section('title', $isAr ? 'مراجعة المشاريع' : 'Projects Review')
+
 @section('content')
-<div class="card mb-3">
-    <div class="card-header">{{ app()->getLocale()==='ar' ? 'إضافة مشروع جديد' : 'Add New Project' }}</div>
-    <div class="card-body">
-        <form method="post" action="{{ route('admin.projects.store') }}" class="row g-2">
-            @csrf
-            <div class="col-md-3"><input class="form-control" name="title" placeholder="{{ app()->getLocale()==='ar'?'عنوان المشروع':'Project Title' }}" required></div>
-            <div class="col-md-3"><input class="form-control" name="category" placeholder="{{ app()->getLocale()==='ar'?'التصنيف':'Category' }}"></div>
-            <div class="col-md-3">
-                <select class="form-select" name="entrepreneur_id" required>
-                    <option value="">{{ app()->getLocale()==='ar'?'رائد الأعمال':'Entrepreneur' }}</option>
-                    @foreach($entrepreneurs as $entrepreneur)
-                        <option value="{{ $entrepreneur->id }}">{{ $entrepreneur->name }}</option>
-                    @endforeach
-                </select>
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="h3 mb-0">{{ $isAr ? 'مراجعة المشاريع' : 'Projects Review' }}</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+        {{ $isAr ? '+ إضافة مشروع جديد' : '+ Add New Project' }}
+    </button>
+</div>
+
+<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createProjectModalLabel">{{ $isAr ? 'إضافة مشروع جديد' : 'Add New Project' }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="col-md-3">
-                <select class="form-select" name="mentor_id">
-                    <option value="">{{ app()->getLocale()==='ar'?'الموجه (اختياري)':'Mentor (optional)' }}</option>
-                    @foreach($mentors as $mentor)
-                        <option value="{{ $mentor->id }}">{{ $mentor->name }}</option>
-                    @endforeach
-                </select>
+            <div class="modal-body">
+                <form method="post" action="{{ route('admin.projects.store') }}" class="row g-2">
+                    @csrf
+                    <div class="col-md-6">
+                        <label class="form-label">{{ $isAr ? 'عنوان المشروع' : 'Project title' }}</label>
+                        <input class="form-control" name="title" placeholder="{{ $isAr ? 'عنوان المشروع' : 'Project Title' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ $isAr ? 'التصنيف' : 'Category' }}</label>
+                        <input class="form-control" name="category" placeholder="{{ $isAr ? 'التصنيف' : 'Category' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ $isAr ? 'رائد الأعمال' : 'Entrepreneur' }}</label>
+                        <select class="form-select" name="entrepreneur_id" required>
+                            <option value="">{{ $isAr ? 'اختر…' : 'Choose…' }}</option>
+                            @foreach($entrepreneurs as $entrepreneur)
+                                <option value="{{ $entrepreneur->id }}">{{ $entrepreneur->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ $isAr ? 'الموجه (اختياري)' : 'Mentor (optional)' }}</label>
+                        <select class="form-select" name="mentor_id">
+                            <option value="">{{ $isAr ? '—' : '—' }}</option>
+                            @foreach($mentors as $mentor)
+                                <option value="{{ $mentor->id }}">{{ $mentor->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ $isAr ? 'الوصف' : 'Description' }}</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="{{ $isAr ? 'وصف المشروع' : 'Project description' }}" required></textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ $isAr ? 'إلغاء' : 'Cancel' }}</button>
+                        <button type="submit" class="btn btn-primary">{{ $isAr ? 'إضافة مشروع' : 'Add Project' }}</button>
+                    </div>
+                </form>
             </div>
-            <div class="col-12"><textarea class="form-control" name="description" rows="2" placeholder="{{ app()->getLocale()==='ar'?'وصف المشروع':'Project description' }}" required></textarea></div>
-            <div class="col-12"><button class="btn btn-primary btn-sm">{{ app()->getLocale()==='ar'?'إضافة مشروع':'Add Project' }}</button></div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -96,4 +129,3 @@
 <div class="mt-3">{{ $projects->links() }}</div>
 @endif
 @endsection
-

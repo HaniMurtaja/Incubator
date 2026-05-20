@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', app()->getLocale()==='ar' ? 'سجل التعيينات' : 'Assignments Log')
+@section('title', app()->getLocale()==='ar' ? 'سجل المهام' : 'Tasks log')
 @section('content')
 <div class="card mb-3">
-    <div class="card-header">{{ app()->getLocale()==='ar' ? 'إضافة سجل تعيين' : 'Add Assignment Log' }}</div>
+    <div class="card-header">{{ app()->getLocale()==='ar' ? 'إضافة سجل مهمة' : 'Add task log entry' }}</div>
     <div class="card-body">
         <form method="post" action="{{ route('admin.assignments.store') }}" class="row g-2">
             @csrf

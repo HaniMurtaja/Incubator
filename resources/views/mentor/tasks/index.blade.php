@@ -1,29 +1,29 @@
 @extends('layouts.app')
-@section('title', 'Tasks')
+@section('title', __('ui.mentor_tasks'))
 @section('content')
-<a class="btn btn-primary mb-3" href="{{ route('mentor.tasks.create') }}">Create Task</a>
+<a class="btn btn-primary mb-3" href="{{ route('mentor.tasks.create') }}">{{ __('ui.mentor_create_task') }}</a>
 <x-filter-bar>
     <div class="col-md-4">
-        <label class="form-label">Search</label>
-        <input class="form-control" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Task title or description">
+        <label class="form-label">{{ __('ui.search') }}</label>
+        <input class="form-control" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="{{ __('ui.search_task') }}">
     </div>
     <div class="col-md-3">
-        <label class="form-label">Status</label>
+        <label class="form-label">{{ __('ui.status') }}</label>
         <select class="form-select" name="status">
-            <option value="">All</option>
+            <option value="">{{ __('ui.all') }}</option>
             @foreach(['not_started','in_progress','submitted','changes_requested','approved'] as $status)
-                <option value="{{ $status }}" @if(($filters['status'] ?? '') === $status) selected @endif>{{ str_replace('_',' ',$status) }}</option>
+                <option value="{{ $status }}" @if(($filters['status'] ?? '') === $status) selected @endif>{{ __('ui.statuses.'.$status) }}</option>
             @endforeach
         </select>
     </div>
 </x-filter-bar>
 @if($tasks->isEmpty())
-    <x-empty-state title="No tasks found." />
+    <x-empty-state :title="__('ui.no_tasks')" />
 @else
     <div class="card">
         <div class="table-responsive">
             <table class="table table-striped mb-0">
-                <thead><tr><th>Task</th><th>Project</th><th>Due</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th>{{ __('ui.task') }}</th><th>{{ __('ui.project') }}</th><th>{{ __('ui.due') }}</th><th>{{ __('ui.status') }}</th><th></th></tr></thead>
                 <tbody>
                 @foreach($tasks as $task)
                     <tr>
@@ -32,9 +32,9 @@
                         <td>{{ $task->due_date }}</td>
                         <td><x-status-badge :status="$task->status" /></td>
                         <td class="d-flex gap-2">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ route('mentor.tasks.show', $task) }}">View</a>
-                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('mentor.tasks.edit', $task) }}">Edit</a>
-                            <form method="post" action="{{ route('mentor.tasks.destroy', $task) }}">@csrf @method('delete')<button class="btn btn-sm btn-outline-danger">Delete</button></form>
+                            <a class="btn btn-sm btn-outline-primary" href="{{ route('mentor.tasks.show', $task) }}">{{ __('ui.view') }}</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('mentor.tasks.edit', $task) }}">{{ __('ui.edit') }}</a>
+                            <form method="post" action="{{ route('mentor.tasks.destroy', $task) }}">@csrf @method('delete')<button class="btn btn-sm btn-outline-danger">{{ __('ui.delete') }}</button></form>
                         </td>
                     </tr>
                 @endforeach
@@ -45,4 +45,3 @@
     <div class="mt-3">{{ $tasks->links() }}</div>
 @endif
 @endsection
-

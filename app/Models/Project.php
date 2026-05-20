@@ -61,4 +61,9 @@ class Project extends Model
     {
         return $this->hasMany(ActivityLog::class);
     }
+
+    public function meetingRequests()
+    {
+        return $this->hasMany(MeetingRequest::class);
+    }
 }

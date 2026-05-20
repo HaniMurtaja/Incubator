@@ -12,10 +12,16 @@
         'changes_requested' => 'bg-orange-lt',
         'approved' => 'bg-green-lt',
         'under_review' => 'bg-cyan-lt',
+        'requested' => 'bg-azure-lt',
+        'done' => 'bg-green-lt',
+        'postponed' => 'bg-secondary-lt',
     ];
+    $label = __('ui.statuses.'.$status);
+    if ($label === 'ui.statuses.'.$status) {
+        $label = str_replace('_', ' ', $status);
+    }
 @endphp
 
 <span {{ $attributes->merge(['class' => 'badge '.($map[$status] ?? 'bg-azure-lt')]) }}>
-    {{ str_replace('_', ' ', $status) }}
+    {{ $label }}
 </span>
-

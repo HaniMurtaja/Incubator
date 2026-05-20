@@ -14,7 +14,7 @@
     </a>
     <a class="nav-link text-white d-block {{ request()->routeIs('admin.assignments.*') ? 'active' : '' }}"
        href="{{ route('admin.assignments.index') }}">
-        {{ app()->getLocale()==='ar' ? 'سجل التعيينات' : 'Assignments Log' }}
+        {{ app()->getLocale()==='ar' ? 'سجل المهام' : 'Tasks log' }}
     </a>
     <a class="nav-link text-white d-block {{ request()->routeIs('admin.meetings.*') ? 'active' : '' }}"
        href="{{ route('admin.meetings.index') }}">

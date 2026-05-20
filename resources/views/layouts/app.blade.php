@@ -32,7 +32,7 @@
         ══════════════════════════════════ */
         aside.navbar.navbar-vertical {
             background: #0F1724 !important;
-            border-right: none;
+            border-inline-end: none;
             box-shadow: 2px 0 16px rgba(0,0,0,.25);
             display: flex !important;
             flex-direction: column !important;
@@ -70,20 +70,20 @@
             border-radius: 8px !important;
             margin-bottom: 2px;
             transition: background .15s, color .15s !important;
-            border-left: 3px solid transparent;
+            border-inline-start: 3px solid transparent;
             display: block;
         }
         aside .nav-link:hover {
             background: rgba(255,255,255,.07) !important;
             color: #EEF3F7 !important;
-            border-left-color: #1A56DB;
+            border-inline-start-color: #1A56DB;
         }
         aside .nav-link.active,
         aside .nav-link[aria-current="page"] {
             background: #1A56DB !important;
             color: #fff !important;
             font-weight: 600 !important;
-            border-left-color: transparent;
+            border-inline-start-color: transparent;
         }
 
         .sidebar-footer {
@@ -240,6 +240,17 @@
             background: #1A56DB !important;
             border-color: #1A56DB !important;
             color: #fff !important;
+        }
+
+        html[dir="rtl"] .table th,
+        html[dir="rtl"] .table td {
+            text-align: right;
+        }
+        html[dir="rtl"] .form-label {
+            text-align: right;
+        }
+        html[dir="rtl"] .page-header {
+            flex-direction: row-reverse;
         }
 
         @if($rtlDashboardLayout)

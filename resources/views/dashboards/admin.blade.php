@@ -186,7 +186,7 @@
 <div class="d-flex flex-wrap gap-2 mb-4">
     <a class="btn btn-dark btn-sm" href="{{ route('admin.projects.index') }}">+ {{ $isAr ? 'مشروع جديد' : 'New project' }}</a>
     <a class="btn btn-outline-secondary btn-sm" href="{{ route('admin.users.index') }}">+ {{ $isAr ? 'مستخدم' : 'User' }}</a>
-    <a class="btn btn-outline-primary btn-sm" href="{{ route('admin.assignments.index') }}">{{ $isAr ? 'سجل التعيين' : 'Assign pair' }}</a>
+    <a class="btn btn-outline-primary btn-sm" href="{{ route('admin.assignments.index') }}">{{ $isAr ? 'سجل المهام' : 'Tasks log' }}</a>
     <a class="btn btn-outline-primary btn-sm" href="{{ route('admin.meetings.index') }}">{{ $isAr ? 'طلبات الاجتماع' : 'Meeting requests' }}</a>
     <a class="btn btn-outline-primary btn-sm" href="{{ route('admin.audit.index') }}">{{ $isAr ? 'سجل التدقيق' : 'Audit trail' }}</a>
 </div>

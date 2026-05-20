@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('projects', [ProjectReviewController::class, 'store'])->name('projects.store');
         Route::patch('projects/{project}/review', [ProjectReviewController::class, 'update'])->name('projects.review');
         Route::resource('assignments', AssignmentLogController::class)->only(['index', 'store', 'destroy']);
+        Route::get('meetings/calendar-events', [MeetingRequestController::class, 'calendarEvents'])->name('meetings.calendar.events');
         Route::resource('meetings', MeetingRequestController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('audit-trail', [AuditTrailController::class, 'index'])->name('audit.index');
         Route::get('incubator-life-cycle', [IncubatorLifeCycleController::class, 'index'])->name('lifecycle.index');

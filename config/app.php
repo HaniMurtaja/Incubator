@@ -57,6 +57,11 @@ return [
     'asset_url' => env('ASSET_URL', null),
 
     /*
+    | Force HTTPS for generated URLs (set FORCE_HTTPS=true behind proxies / SSL terminators).
+    */
+    'force_https' => (bool) env('FORCE_HTTPS', false),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
